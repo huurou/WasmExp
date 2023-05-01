@@ -22,37 +22,31 @@ internal record Funcref : ReferenceType;
 
 internal record Externalref : ReferenceType;
 
-internal abstract record ExternType;
-
-internal record FuncType(IEnumerable<ValueType> Parameters, IEnumerable<ValueType> Results) : ExternType
+internal abstract class ExternType
 {
-    public virtual bool Equals(FuncType? other)
-    {
-        return ReferenceEquals(this, other) ||
-            other is not null &&
-            EqualityContract == other.EqualityContract &&
-            Parameters.SequenceEqual(other.Parameters) &&
-            Results.SequenceEqual(other.Results);
-    }
-
-    public override int GetHashCode()
-    {
-        var hash = new HashCode();
-        hash.Add(EqualityContract);
-        foreach (var parameter in Parameters)
-        {
-            hash.Add(parameter);
-        }
-        foreach (var result in Results)
-        {
-            hash.Add(result);
-        }
-        return hash.ToHashCode();
-    }
 }
 
-internal record MemoryType(uint Min, uint? Max = null) : ExternType;
+internal class FunctionType : ExternType
+{
+    public IEnumerable<ValueType> Parameters { get; init; } = Enumerable.Empty<ValueType>();
+    public IEnumerable<ValueType> Results { get; init; } = Enumerable.Empty<ValueType>();
+}
 
-internal record TableType(ReferenceType ReferenceType, uint Min, uint? Max = null) : ExternType;
+internal class MemoryType : ExternType
+{
+    public uint Min { get; init; }
+    public uint? Max { get; init; }
+}
 
-internal record GlobalType(ValueType ValueType, bool Mutable = false) : ExternType;
+internal class TableType : ExternType
+{
+    public uint Min { get; init; }
+    public uint? Max { get; init; }
+    public required ReferenceType ReferenceType { get; init; }
+}
+
+internal class GlobalType : ExternType
+{
+    public bool Mutable { get; init; }
+    public required ValueType ValueType { get; init; }
+}
