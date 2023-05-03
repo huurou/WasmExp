@@ -4,12 +4,12 @@ namespace WasmExp.Test.Texts;
 
 internal class SExpressionParseTest
 {
-    private TextParser parser_;
+    private SExpressionParser parser_;
 
     [SetUp]
     public void SetUp()
     {
-        parser_ = new TextParser();
+        parser_ = new SExpressionParser();
     }
 
     [Test]
