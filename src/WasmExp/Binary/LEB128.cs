@@ -1,4 +1,4 @@
-﻿namespace WasmExp.Binaries;
+﻿namespace WasmExp.Binary;
 
 /// <summary>
 /// Single-file utility to read and write integers in the LEB128 (7-bit little endian base-128) format.
@@ -7,11 +7,11 @@
 public static class LEB128
 {
     private const long SIGN_EXTEND_MASK = -1L;
-    private const int INT64_BITSIZE = (sizeof(long) * 8);
+    private const int INT64_BITSIZE = sizeof(long) * 8;
 
     public static void WriteLEB128Signed(this Stream stream, long value)
     {
-        WriteLEB128Signed(stream, value, out _);
+        stream.WriteLEB128Signed(value, out _);
     }
 
     public static void WriteLEB128Signed(this Stream stream, long value, out int bytes)
@@ -23,7 +23,7 @@ public static class LEB128
             var chunk = (byte)(value & 0x7fL);
             value >>= 7;
             var signBitSet = (chunk & 0x40) != 0;
-            more = !((value == 0 && !signBitSet) || (value == -1 && signBitSet));
+            more = !(value == 0 && !signBitSet || value == -1 && signBitSet);
             if (more)
             {
                 chunk |= 0x80;
@@ -35,7 +35,7 @@ public static class LEB128
 
     public static void WriteLEB128Unsigned(this Stream stream, ulong value)
     {
-        WriteLEB128Unsigned(stream, value, out _);
+        stream.WriteLEB128Unsigned(value, out _);
     }
 
     public static void WriteLEB128Unsigned(this Stream stream, ulong value, out int bytes)
@@ -58,7 +58,7 @@ public static class LEB128
 
     public static long ReadLEB128Signed(this Stream stream)
     {
-        return ReadLEB128Signed(stream, out _);
+        return stream.ReadLEB128Signed(out _);
     }
 
     public static long ReadLEB128Signed(this Stream stream, out int bytes)
@@ -89,7 +89,7 @@ public static class LEB128
 
     public static ulong ReadLEB128Unsigned(this Stream stream)
     {
-        return ReadLEB128Unsigned(stream, out _);
+        return stream.ReadLEB128Unsigned(out _);
     }
 
     public static ulong ReadLEB128Unsigned(this Stream stream, out int bytes)

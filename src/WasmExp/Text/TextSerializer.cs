@@ -1,4 +1,4 @@
-﻿namespace WasmExp.Texts;
+﻿namespace WasmExp.Text;
 
 internal class TextSerializer
 {

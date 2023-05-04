@@ -1,4 +1,4 @@
-﻿namespace WasmExp.Binaries;
+﻿namespace WasmExp.Binary;
 
 internal class Module
 {

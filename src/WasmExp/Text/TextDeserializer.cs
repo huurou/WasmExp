@@ -1,8 +1,10 @@
-﻿namespace WasmExp.Texts;
+﻿using WasmExp.Text;
+
+namespace WasmExp.Text;
 
 internal class TextDeserializer
 {
-    private readonly SExpressionParser sExpParser_ = new ();
+    private readonly SExpressionParser sExpParser_ = new();
 
     public void Deserialize(string text)
     {

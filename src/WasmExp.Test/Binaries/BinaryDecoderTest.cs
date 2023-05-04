@@ -1,6 +1,6 @@
-﻿using WasmExp.Binaries;
-using Type = WasmExp.Binaries.Type;
-using ValueType = WasmExp.Binaries.ValueType;
+﻿using WasmExp.Binary;
+using Type = WasmExp.Binary.Type;
+using ValueType = WasmExp.Binary.ValueType;
 
 namespace WasmExp.Test.Binaries;
 

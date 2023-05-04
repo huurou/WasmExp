@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace WasmExp.Binaries;
+namespace WasmExp.Binary;
 
 internal enum SectionId
 {

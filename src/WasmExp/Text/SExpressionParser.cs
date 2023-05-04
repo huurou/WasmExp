@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace WasmExp.Texts;
+namespace WasmExp.Text;
 
 /// <summary>
 /// S式解析器

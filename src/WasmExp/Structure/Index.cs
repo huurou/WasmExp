@@ -1,4 +1,4 @@
-﻿namespace WasmExp.Structures;
+﻿namespace WasmExp.Structure;
 
 internal record struct TypeIndex(uint Value);
 

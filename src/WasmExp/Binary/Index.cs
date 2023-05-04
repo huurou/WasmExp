@@ -1,4 +1,4 @@
-﻿namespace WasmExp.Binaries;
+﻿namespace WasmExp.Binary;
 
 public abstract record Index(uint Value);
 

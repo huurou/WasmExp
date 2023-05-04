@@ -1,4 +1,4 @@
-﻿using WasmExp.Texts;
+﻿using WasmExp.Text;
 
 namespace WasmExp.Test.Texts;
 
