@@ -2,9 +2,9 @@
 
 internal static class BinaryDecoder
 {
-    public static Module Decode(MemoryStream ms)
+    public static Module Decode(Stream stream)
     {
-        using var br = new BinaryReader(ms);
+        using var br = new BinaryReader(stream);
         try
         {
             return new(br);

@@ -117,14 +117,14 @@ internal enum ExportKind
 internal class CodeSection
 {
     public SectionId Id => SectionId.Code;
-    public List<FunctionBody> Bodys { get; } = new();
+    public List<FunctionBody> FunctionBodies { get; } = new();
 
     public CodeSection(BinaryReader br)
     {
         var n = br.ReadLEB128Uint32();
         for (var i = 0; i < n; i++)
         {
-            Bodys.Add(new(br));
+            FunctionBodies.Add(new(br));
         }
     }
 }
@@ -132,6 +132,7 @@ internal class CodeSection
 internal class FunctionBody
 {
     public List<ValueType> Locals { get; } = new();
+    public List<Instruction> Instructions { get; } = new();
 
     public FunctionBody(BinaryReader br)
     {
@@ -145,6 +146,11 @@ internal class FunctionBody
             {
                 Locals.Add(Type.GetValueType(typeCode));
             }
+        }
+        var more = true;
+        while (more)
+        {
+            Instructions.Add(Instruction.GetInstruction(br, ref more));
         }
     }
 }

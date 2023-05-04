@@ -84,8 +84,7 @@ internal class Module
                     break;
 
                 case SectionId.Code:
-                    br.ReadBytes((int)size);
-                    //CodeSection = new(br);
+                    CodeSection = new(br);
                     break;
 
                 case SectionId.Data:

@@ -117,9 +117,19 @@ public static class LEB128
         return (int)br.BaseStream.ReadLEB128Signed();
     }
 
+    public static int ReadLEB128Int32(this BinaryReader br, out int bytes)
+    {
+        return (int)br.BaseStream.ReadLEB128Signed(out bytes);
+    }
+
     public static long ReadLEB128Int64(this BinaryReader br)
     {
         return br.BaseStream.ReadLEB128Signed();
+    }
+
+    public static long ReadLEB128Int64(this BinaryReader br, out int bytes)
+    {
+        return br.BaseStream.ReadLEB128Signed(out bytes);
     }
 
     public static uint ReadLEB128Uint32(this BinaryReader br)
@@ -127,8 +137,18 @@ public static class LEB128
         return (uint)br.BaseStream.ReadLEB128Unsigned();
     }
 
+    public static uint ReadLEB128Uint32(this BinaryReader br, out int bytes)
+    {
+        return (uint)br.BaseStream.ReadLEB128Unsigned(out bytes);
+    }
+
     public static ulong ReadLEB128Uint64(this BinaryReader br)
     {
         return br.BaseStream.ReadLEB128Unsigned();
+    }
+
+    public static ulong ReadLEB128Uint64(this BinaryReader br, out int bytes)
+    {
+        return br.BaseStream.ReadLEB128Unsigned(out bytes);
     }
 }

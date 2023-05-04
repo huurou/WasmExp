@@ -15,6 +15,7 @@ public enum Error
     Functionじゃないタイプコードが記されてるよ,
     ValueTypeじゃないタイプコードが記されてるよ,
     ExportKindが不正だよ,
+    オペコードが不正だよ,
 }
 
 public class WasmException : Exception

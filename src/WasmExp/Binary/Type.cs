@@ -101,43 +101,42 @@ internal record FunctionType : Type
 {
     public override TypeCode Code => TypeCode.Function;
 
-    public ResultType Parameters { get; }
-    public ResultType Results { get; }
+    public List<ValueType> Parameters { get; } = new();
+    public List<ValueType> Results { get; } = new();
 
     public FunctionType(BinaryReader br)
-    {
-        Parameters = new(br);
-        Results = new(br);
-    }
-}
-
-internal record ResultType
-{
-    public List<ValueType> ValTypes { get; } = new();
-
-    public ResultType(BinaryReader br)
     {
         var n = br.ReadLEB128Uint32();
         for (var i = 0; i < n; i++)
         {
-            ValTypes.Add(Type.GetValueType((TypeCode)br.ReadByte()));
+            Parameters.Add(GetValueType((TypeCode)br.ReadByte()));
+        }
+        n = br.ReadLEB128Uint32();
+        for (var i = 0; i < n; i++)
+        {
+            Results.Add(GetValueType((TypeCode)br.ReadByte()));
         }
     }
 
-    public virtual bool Equals(ResultType? other)
+    public virtual bool Equals(FunctionType? other)
     {
         return ReferenceEquals(this, other) ||
             other is not null &&
             EqualityContract == other.EqualityContract &&
-            ValTypes.SequenceEqual(other.ValTypes);
+            Parameters.SequenceEqual(other.Parameters) &&
+            Results.SequenceEqual(other.Results);
     }
 
     public override int GetHashCode()
     {
         var hashCode = new HashCode();
-        foreach (var valType in ValTypes)
+        foreach (var param in Parameters)
         {
-            hashCode.Add(valType);
+            hashCode.Add(param);
+        }
+        foreach (var result in Results)
+        {
+            hashCode.Add(result);
         }
         return hashCode.ToHashCode();
     }
