@@ -2,7 +2,7 @@
 
 internal class TextDeserializer
 {
-    private readonly SExpressionParser sExpParser_ = new SExpressionParser();
+    private readonly SExpressionParser sExpParser_ = new ();
 
     public void Deserialize(string text)
     {
@@ -15,9 +15,6 @@ internal class TextDeserializer
 /// </summary>
 internal class SListParser
 {
-    public void Parse(SList list)
-    {
-    }
 }
 
 internal abstract record Token;
