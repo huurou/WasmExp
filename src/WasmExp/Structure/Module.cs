@@ -2,13 +2,22 @@
 
 internal class Module
 {
-    public IEnumerable<FunctionType> Types { get; init; } = Enumerable.Empty<FunctionType>();
+    public List<FunctionType> Types { get; init; } = new();
+    public List<Function> Functions { get; init; } = new();
+    public List<Table> Tables { get; init; } = new();
+    public List<Memory> Memories { get; init; } = new();
+    public List<Global> Globals { get; init; } = new();
+    public List<Element> Elements { get; init; } = new();
+    public List<Data> Datas { get; init; } = new();
+    public Start? Start { get; init; }
+    public List<Import> Imports { get; init; } = new();
+    public List<Export> Exports { get; init; } = new();
 }
 
 internal class Function
 {
-    public TypeIndex Type { get; init; }
-    public IEnumerable<ValueType> Locals { get; set; } = Enumerable.Empty<ValueType>();
+    public required TypeIndex Type { get; init; }
+    public List<ValueType> Locals { get; set; } = new();
     public Expression Body { get; init; } = new();
 }
 
@@ -35,7 +44,7 @@ internal class Global
 internal class Element
 {
     public required ReferenceType Type { get; init; }
-    public required IEnumerable<Expression> Init { get; init; }
+    public required List<Expression> Init { get; init; }
     public required ElementMode Mode { get; init; }
 }
 
@@ -52,7 +61,7 @@ internal record Expression(IEnumerable<Instruction> Instrs)
 
 internal class Data
 {
-    public required IEnumerable<byte> Init { get; init; }
+    public required List<byte> Init { get; init; }
     public required DataMode Mode { get; init; }
 }
 
