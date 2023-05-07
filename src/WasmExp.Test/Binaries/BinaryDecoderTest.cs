@@ -172,7 +172,7 @@ internal class BinaryReaderTest
         });
         Assert.That(
             () => BinaryDecoder.Decode(ms),
-            Throws.Exception.With.Message.EqualTo(Error.バイナリが途中で終わってるよ.ToString()));
+            Throws.TypeOf<WasmException>().With.Message.EqualTo(Error.バイナリが途中で終わってるよ.ToString()));
     }
 
     [Test]
@@ -184,7 +184,7 @@ internal class BinaryReaderTest
         });
         Assert.That(
             () => BinaryDecoder.Decode(ms),
-            Throws.Exception.With.Message.EqualTo(Error.マジックナンバーがおかしいよ.ToString()));
+            Throws.TypeOf<WasmException>().With.Message.EqualTo(Error.マジックナンバーがおかしいよ.ToString()));
     }
 
     [Test]
@@ -196,7 +196,7 @@ internal class BinaryReaderTest
         });
         Assert.That(
             () => BinaryDecoder.Decode(ms),
-            Throws.Exception.With.Message.EqualTo(Error.バージョンがおかしいよ.ToString()));
+            Throws.TypeOf<WasmException>().With.Message.EqualTo(Error.バージョンがおかしいよ.ToString()));
     }
 
     [Test]
@@ -210,6 +210,6 @@ internal class BinaryReaderTest
         });
         Assert.That(
             () => BinaryDecoder.Decode(ms),
-            Throws.Exception.With.Message.EqualTo(Error.セクションIdが不正だよ.ToString()));
+            Throws.TypeOf<WasmException>().With.Message.EqualTo(Error.セクションIdが不正だよ.ToString()));
     }
 }

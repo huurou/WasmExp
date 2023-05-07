@@ -1,4 +1,7 @@
-﻿namespace WasmExp.Binary;
+﻿using System;
+using System.IO;
+
+namespace WasmExp.Binary;
 
 internal enum Prefix
 {

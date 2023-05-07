@@ -1,4 +1,7 @@
-﻿namespace WasmExp.Binary;
+﻿using System.Collections.Generic;
+using System.IO;
+
+namespace WasmExp.Binary;
 
 internal class Module
 {

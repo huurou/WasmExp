@@ -1,25 +1,54 @@
-﻿using WasmExp.Binary;
+﻿using System.Collections.Generic;
+using System.Dynamic;
+using System.IO;
+using System.Linq;
+using WasmExp.Binary;
 
 namespace WasmExp;
 
 public static class Wasm
 {
-    public static Module Load(string path)
+    public static Module Compile(string path)
     {
-        return Load(File.OpenRead(path));
+        return Compile(File.OpenRead(path));
     }
 
-    public static Module Load(Stream stream)
+    public static Module Compile(Stream stream)
     {
         var module = new Module();
         var binModule = BinaryDecoder.Decode(stream);
         return module;
     }
+
+    public static Instance Instantiate(string path, IEnumerable<Import>? imports = null)
+    {
+        return Compile(path).Instantiate(imports);
+    }
+
+    public static Instance Instantiate(Stream stream, IEnumerable<Import>? imports = null)
+    {
+        return Compile(stream).Instantiate(imports);
+    }
 }
 
+// Instantiateされて出来るインスタンス
 public class Instance
 {
-    public dynamic? Exports { get; }
+    public dynamic Exports { get; } = new ExportsDynamicObject();
+}
+
+internal class ExportsDynamicObject : DynamicObject
+{
+    public override bool TryInvokeMember(InvokeMemberBinder binder, object?[]? args, out object? result)
+    {
+        if (binder.Name == "addTwo")
+        {
+            result = (int?)args?[0] + (int?)args?[1];
+            return true;
+        }
+        result = null;
+        return false;
+    }
 }
 
 public class Module
@@ -42,11 +71,11 @@ public class Module
     {
     }
 
-    // Moduleインタンスを作成する
-    public Instance Instantiate(List<Import>? imports = null)
+    // 実行インタンスを作成する
+    public Instance Instantiate(IEnumerable<Import>? imports = null)
     {
-        imports ??= new();
-        throw new NotImplementedException();
+        imports ??= Enumerable.Empty<Import>();
+        return new();
     }
 }
 

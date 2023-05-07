@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace WasmExp.Test;
 
-namespace WasmExp.Test;
 internal class ModuleTest
 {
     [Test]
     public void InvokeTest()
     {
-
         /*
 (module
   (func (export "addTwo") (param i32 i32) (result i32)
@@ -29,5 +23,7 @@ internal class ModuleTest
             0x61, 0x6D, 0x65, 0x02, 0x03, 0x01, 0x00, 0x00,
         });
         var module = new Module(ms);
+        var instance = module.Instantiate();
+        Assert.That(instance.Exports.addTwo(1, 2), Is.EqualTo(3));
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace WasmExp.Binary;
+﻿using System.IO;
+
+namespace WasmExp.Binary;
 
 internal abstract record NormalInstruction : Instruction
 {

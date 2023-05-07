@@ -1,4 +1,9 @@
-﻿namespace WasmExp.Binary;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace WasmExp.Binary;
 
 internal enum TypeCode
 {

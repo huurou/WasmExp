@@ -1,13 +1,24 @@
-﻿using WasmExp.Structure;
+﻿using System.Collections.Generic;
+using WasmExp.Structure;
 
 namespace WasmExp.Execution;
 
 internal class Store
 {
-}
+    public List<FunctionInstance> Funcs { get; init; } = new();
+    public List<TableInstance> Tables { get; init; } = new();
+    public List<MemoryInstance> Mems { get; init; } = new();
+    public List<GlobalInstance> Globals { get; init; } = new();
+    public List<ElementInstance> Elems { get; init; } = new();
+    public List<DataInstance> Datas { get; init; } = new();
 
-internal class ModuleInstance
-{
+    public FunctionInstance GetFuncinst(FunctionAddress addr)
+    {
+        var a = (int)addr.Value;
+        return 0 <= a && a < Funcs.Count
+            ? Funcs[a]
+            : throw new WasmException(Error.アドレスが関数インスタンスリストの範囲外だよ);
+    }
 }
 
 internal class FunctionInstance
@@ -44,63 +55,4 @@ internal class ElementInstance
 internal class DataInstance
 {
     public List<byte> Data { get; init; }
-}
-
-internal class ExportInstance
-{
-    public string Name { get; init; }
-    public ExternalReferenceValue Value { get; init; }
-}
-
-internal class Label
-{
-    public int Arity { get; init; }
-    public List<Instruction> Instrructions { get; init; }
-}
-
-internal class Frame
-{
-    public List<Value> Locals { get; init; } = new();
-    public ModuleInstance Module { get; init; }
-}
-
-internal class ExecuteContext
-{
-    private readonly List<Value> locals_ = new();
-
-    private readonly Stack<Value> valueStack_ = new();
-
-    public Value GetLocal(LocalIndex index)
-    {
-        var i = (int)index.Value;
-        return 0 <= i && i < locals_.Count
-            ? locals_[i]
-            : throw new IndexOutOfRangeException("ローカルインデックスが不正");
-    }
-
-    public void SetLocal(LocalIndex index, Value value)
-    {
-        var i = (int)index.Value;
-        if (!(0 <= i && i < locals_.Count)) throw new IndexOutOfRangeException("ローカルインデックスが不正");
-        if (locals_[i].GetType() != value.GetType()) throw new InvalidOperationException("型不一致");
-        locals_[i] = value;
-    }
-
-    public void PushValue(Value value)
-    {
-        valueStack_.Push(value);
-    }
-
-    public Value PopValue()
-    {
-        return valueStack_.Pop();
-    }
-
-    public T PopValue<T>()
-        where T : Value
-    {
-        return valueStack_.Pop() is T value
-            ? value
-            : throw new InvalidOperationException();
-    }
 }

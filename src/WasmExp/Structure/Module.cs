@@ -1,4 +1,7 @@
-﻿namespace WasmExp.Structure;
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace WasmExp.Structure;
 
 internal class Module
 {
@@ -23,6 +26,15 @@ internal class Function
 
 internal class Instruction
 {
+}
+
+internal class End : Instruction
+{
+    public static End Singleton { get; } = new();
+
+    private End()
+    {
+    }
 }
 
 internal class Table
@@ -57,6 +69,11 @@ internal record Expression(IEnumerable<Instruction> Instrs)
 {
     public Expression()
         : this(Enumerable.Empty<Instruction>()) { }
+
+    public List<Instruction> Expand()
+    {
+        return Instrs.Append(End.Singleton).ToList();
+    }
 }
 
 internal class Data

@@ -1,6 +1,11 @@
-﻿namespace WasmExp.Structure;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
-internal abstract record ValueType
+namespace WasmExp.Structure;
+
+internal abstract record BlockType;
+internal abstract record ValueType : BlockType
 {
     public static I32 I32 => new();
     public static I64 I64 => new();
@@ -28,6 +33,9 @@ internal record ExternalReference : ReferenceType;
 internal abstract record ExternType;
 internal record FunctionType(IEnumerable<ValueType> Parameters, IEnumerable<ValueType> Results) : ExternType
 {
+    public int ParamCount => Parameters.Count();
+    public int ResultCount => Results.Count();
+
     public virtual bool Equals(FunctionType? other)
     {
         return ReferenceEquals(this, other) ||
