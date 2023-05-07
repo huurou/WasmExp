@@ -1,4 +1,5 @@
-﻿using WasmExp.Binary;
+﻿using System.IO;
+using WasmExp.Binary;
 using Type = WasmExp.Binary.Type;
 using ValueType = WasmExp.Binary.ValueType;
 

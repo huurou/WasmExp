@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using WasmExp.Execution;
 
 namespace WasmExp.Structure;
 
@@ -19,12 +20,65 @@ internal class Module
 
 internal class Function
 {
-    public required TypeIndex Type { get; init; }
+    public TypeIndex Type { get; init; }
     public List<ValueType> Locals { get; set; } = new();
     public Expression Body { get; init; } = new();
+
+    public Function(TypeIndex type)
+    {
+        Type = type;
+    }
 }
 
 internal class Instruction
+{
+}
+
+internal class Call : Instruction
+{
+    public FunctionIndex Index { get; init; }
+
+    public Call(FunctionIndex index)
+    {
+        Index = index;
+    }
+}
+
+internal class LocalGet : Instruction
+{
+    public LocalIndex Index { get; init; }
+
+    public LocalGet(LocalIndex index)
+    {
+        Index = index;
+    }
+}
+
+internal class LocalSet : Instruction
+{
+    public LocalIndex Index { get; init; }
+
+    public LocalSet(LocalIndex index)
+    {
+        Index = index;
+    }
+}
+
+internal class I32Const : Instruction
+{
+    public I32Value Value { get; init; }
+
+    public I32Const(I32Value value)
+    {
+        Value = value;
+    }
+}
+
+internal class I32Add : Instruction
+{
+}
+
+internal class I32Sub : Instruction
 {
 }
 
@@ -115,6 +169,6 @@ internal class Import
 
 internal abstract record ImportDesc;
 internal record ImportDescFunc(TypeIndex Value) : ImportDesc;
-internal record ImportDescTable(TableIndex Value) : ImportDesc;
-internal record ImportDescMemory(MemoryIndex Value) : ImportDesc;
-internal record ImportDescGlobal(GlobalIndex Value) : ImportDesc;
+internal record ImportDescTable(TableType Value) : ImportDesc;
+internal record ImportDescMemory(MemoryType Value) : ImportDesc;
+internal record ImportDescGlobal(GlobalType Value) : ImportDesc;

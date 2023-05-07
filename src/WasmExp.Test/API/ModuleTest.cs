@@ -1,4 +1,6 @@
-﻿namespace WasmExp.Test;
+﻿using System.IO;
+
+namespace WasmExp.Test;
 
 internal class ModuleTest
 {
@@ -22,7 +24,7 @@ internal class ModuleTest
             0x20, 0x01, 0x6A, 0x0B, 0x00, 0x0A, 0x04, 0x6E,
             0x61, 0x6D, 0x65, 0x02, 0x03, 0x01, 0x00, 0x00,
         });
-        var module = new Module(ms);
+        var module = Wasm.Compile(ms);
         var instance = module.Instantiate();
         Assert.That(instance.Exports.addTwo(1, 2), Is.EqualTo(3));
     }

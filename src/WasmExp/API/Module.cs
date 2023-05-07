@@ -3,6 +3,8 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using WasmExp.Binary;
+using WasmExp.Execution;
+using WasmExp.Structure;
 
 namespace WasmExp;
 
@@ -15,8 +17,8 @@ public static class Wasm
 
     public static Module Compile(Stream stream)
     {
-        var module = new Module();
         var binModule = BinaryDecoder.Decode(stream);
+        var module = new Module(binModule);
         return module;
     }
 
@@ -34,20 +36,55 @@ public static class Wasm
 // Instantiateされて出来るインスタンス
 public class Instance
 {
-    public dynamic Exports { get; } = new ExportsDynamicObject();
+    public dynamic Exports { get; }
+
+    internal Instance(Binary.Module binModule)
+    {
+        Exports = new ExportsDynamicObject(binModule);
+    }
 }
 
 internal class ExportsDynamicObject : DynamicObject
 {
+    private readonly Binary.Module binModule_;
+
+    public ExportsDynamicObject(Binary.Module binModule)
+    {
+        binModule_ = binModule;
+    }
+
     public override bool TryInvokeMember(InvokeMemberBinder binder, object?[]? args, out object? result)
     {
-        if (binder.Name == "addTwo")
+        var exps = binModule_.ExportSection!.Exports;
+        if (exps.FirstOrDefault(x => x.Name == binder.Name)?.Index is not Binary.FunctionIndex fi) { result = null; return false; }
+        var body = binModule_.CodeSection?.FunctionBodies[(int)fi.Value];
+
+        var moduleInst = new ModuleInstance();
+        var store = new Store
         {
-            result = (int?)args?[0] + (int?)args?[1];
-            return true;
-        }
-        result = null;
-        return false;
+            Funcs = new()
+            {
+                new()
+                {
+                    Type = new(new[] { Structure.ValueType.I32, Structure.ValueType.I32 }, new[] { Structure.ValueType.I32 }),
+                    Module = moduleInst,
+                    Code = new(new(0))
+                    {
+                        Body = new(body.Instructions),
+                    }
+                },
+            },
+        };
+
+        var ctx = new ExecuteContext(store);
+        var F = new Frame(0, moduleInst);
+        ctx.Push(F);
+        ctx.Push(new I32Value(((int?)args[0]).Value));
+        ctx.Push(new I32Value(((int?)args[1]).Value));
+        Auxiliary.Invoke(ctx, new(0));
+        var res = ctx.PopValue();
+        result = (res as I32Value)?.Value;
+        return true;
     }
 }
 
@@ -57,25 +94,18 @@ public class Module
     public List<Export> Exports { get; } = new();
     public List<CustomSection> CustomSections { get; } = new();
 
-    public Module()
-    {
-    }
+    private readonly Binary.Module binModule_;
 
-    // ファイルをコンパイルする
-    public Module(string path)
+    internal Module(Binary.Module binModule)
     {
-    }
-
-    // ファイルをコンパイルする
-    public Module(Stream stream)
-    {
+        binModule_ = binModule;
     }
 
     // 実行インタンスを作成する
     public Instance Instantiate(IEnumerable<Import>? imports = null)
     {
         imports ??= Enumerable.Empty<Import>();
-        return new();
+        return new(binModule_);
     }
 }
 

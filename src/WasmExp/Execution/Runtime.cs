@@ -4,34 +4,29 @@ using WasmExp.Structure;
 
 namespace WasmExp.Execution;
 
-internal abstract class Entry
-{
-}
+internal abstract record Entry;
 
-internal class Label : Entry
+internal record Label(int Arity) : Entry
 {
-    /// <summary>
-    /// result arity
-    /// </summary>
-    public int Arity { get; init; }
     public List<Instruction> Instructions { get; init; } = new();
+
+    public Label(int arity, IEnumerable<Instruction>? instructions = null)
+        : this(arity)
+    {
+        Instructions = instructions?.ToList() ?? new();
+    }
 }
 
-internal class Frame : Entry
+internal record Frame(int Arity, ModuleInstance Module) : Entry
 {
-    /// <summary>
-    /// result arity
-    /// フレーム終了時に必要な戻り値の数
-    /// </summary>
-    public int Arity { get; }
-    public List<Value> Locals { get; }
-    public ModuleInstance Module { get; }
+    public List<Value> Locals { get; init; } = new();
 
-    public Frame(int resultArity, IEnumerable<Value> locals, ModuleInstance module)
+    public Frame(int arity, ModuleInstance module, IEnumerable<Value>? locals = null)
+        : this(arity, module)
     {
-        Arity = resultArity;
-        Locals = locals.ToList();
+        Arity = arity;
         Module = module;
+        Locals = locals?.ToList() ?? new();
     }
 
     public Value GetLocal(LocalIndex index)
@@ -59,11 +54,29 @@ internal class ExecuteContext
 
     private readonly Stack<Entry> stack_ = new();
 
+    public ExecuteContext(Store store)
+    {
+        Store = store;
+    }
+
     public Entry Pop()
     {
         return stack_.TryPop(out var entry)
             ? entry
             : throw new WasmException(Error.スタックが空だよ);
+    }
+
+    public void Push(Entry entry)
+    {
+        stack_.Push(entry);
+    }
+
+    public void Push(IEnumerable<Entry> entries)
+    {
+        foreach (var entry in entries)
+        {
+            Push(entry);
+        }
     }
 
     public Value PopValue()
@@ -81,25 +94,41 @@ internal class ExecuteContext
             : throw new WasmException(Error.スタックトップと要求値タイプが異なるよ);
     }
 
+    public IEnumerable<Value> PopValues()
+    {
+        var values = new List<Value>();
+        while (true)
+        {
+            if (stack_.TryPop(out var entry))
+            {
+                if (entry is Value value)
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    stack_.Push(entry);
+                    return values;
+                }
+            }
+            else throw new WasmException(Error.スタックが空か値以外の要素がなかったよ);
+        }
+    }
+
     public IEnumerable<Value> PopValues(int count)
     {
-        var values = new List<Entry>();
+        var entries = new List<Entry>();
         for (var i = 0; i < count; i++)
         {
             if (stack_.TryPop(out var entry))
             {
-                values.Prepend(entry);
+                entries.Add(entry);
             }
             else throw new WasmException(Error.スタックの要素数が足りないよ);
         }
-        return values.All(x => x is Value)
-            ? values.OfType<Value>()
+        return entries.All(x => x is Value)
+            ? entries.OfType<Value>().Reverse()
             : throw new WasmException(Error.要求された個数分の値がスタックトップから連続して存在しないよ);
-    }
-
-    public void PushValue(Value value)
-    {
-        stack_.Push(value);
     }
 
     public Label PopLabel()
@@ -130,10 +159,5 @@ internal class ExecuteContext
                 ? frame
                 : throw new WasmException(Error.スタックトップがフレームじゃないよ)
             : throw new WasmException(Error.スタックが空だよ);
-    }
-
-    public void PushFrame(Frame frame)
-    {
-        stack_.Push(frame);
     }
 }

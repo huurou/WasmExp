@@ -1,19 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using WasmExp.Structure;
 
 namespace WasmExp.Execution;
-
-
-
-internal abstract class Instruction
-{
-    /// <summary>
-    /// 命令を実行する 引数は各命令インスタンスが持っている
-    /// </summary>
-    /// <param name="ctx">実行コンテキスト</param>
-    public abstract void Execute(ExecuteContext ctx);
-}
 
 internal static class Auxiliary
 {
@@ -23,88 +11,42 @@ internal static class Auxiliary
         var n = f.Type.ParamCount;
         var m = f.Type.ResultCount;
         var locals = f.Code.Locals.Select(x => x.GetDefaultValue());
-        var instrs = f.Code.Body;
+        var expr = f.Code.Body;
         var vals = ctx.PopValues(n);
-        var newFrame = new Frame(m, vals.Concat(locals), f.Module);
-        ctx.PushFrame(newFrame);
-        var label = new Label();
-        Entry(ctx, label, instrs);
+        var newFrame = new Frame(m, f.Module, vals.Concat(locals));
+        ctx.Push(newFrame);
+        var label = new Label(0);
+        Entry(ctx, label, expr);
     }
 
-    public static void Entry(ExecuteContext ctx, Label label, IEnumerable<Instruction> instructions)
+    public static void Entry(ExecuteContext ctx, Label label, Expression expr)
     {
         ctx.PushLabel(label);
-        foreach (var instruction in instructions)
+        foreach (var instr in expr.Instrs)
         {
-            instruction.Execute(ctx);
+            instr.Execute(ctx);
         }
-    }
-}
-
-internal class End : Instruction
-{
-    public override void Execute(ExecuteContext ctx)
-    {
-        throw new System.NotImplementedException();
-    }
-}
-
-internal class Call : Instruction
-{
-    public FunctionIndex Index { get; init; }
-
-    public override void Execute(ExecuteContext ctx)
-    {
-        var frame = ctx.GetCurrentFrame();
-        var module = frame.Module;
-        var addr = module.GetFuncAddr(Index);
-        Auxiliary.Invoke(ctx, addr);
-    }
-}
-
-internal class LocalGet : Instruction
-{
-    public LocalIndex Index { get; init; }
-
-    public override void Execute(ExecuteContext ctx)
-    {
-        var frame = ctx.GetCurrentFrame();
-        ctx.PushValue(frame.GetLocal(Index));
-    }
-}
-
-internal class LocalSet : Instruction
-{
-    public LocalIndex Index { get; init; }
-
-    public override void Execute(ExecuteContext ctx)
-    {
-        var frame = ctx.GetCurrentFrame();
-        frame.SetLocal(Index, ctx.PopValue());
-    }
-}
-
-internal class I32Const : Instruction
-{
-    public I32Value Value { get; init; }
-
-    public I32Const(I32Value value)
-    {
-        Value = value;
+        Exit(ctx, label);
     }
 
-    public override void Execute(ExecuteContext ctx)
+    public static void Execute(ExecuteContext ctx, Instruction instr)
     {
-        ctx.PushValue(Value);
     }
-}
 
-internal class I32Add : Instruction
-{
-    public override void Execute(ExecuteContext ctx)
+    public static void Exit(ExecuteContext ctx, Label label)
     {
-        var c2 = ctx.PopValue<I32Value>();
-        var c1 = ctx.PopValue<I32Value>();
-        ctx.PushValue(new I32Value(c1.Data + c2.Data));
+        var vals = ctx.PopValues();
+        if (ctx.PopLabel() != label) throw new WasmException(Error.スタックトップのラベルが不正だよ);
+        ctx.Push(vals);
+        Return(ctx);
+    }
+
+    public static void Return(ExecuteContext ctx)
+    {
+        var F = ctx.GetCurrentFrame();
+        var n = F.Arity;
+        var vals = ctx.PopValues(n);
+        if (ctx.PopFrame() != F) throw new WasmException(Error.スタックトップのフレームが不正だよ);
+        ctx.Push(vals);
     }
 }

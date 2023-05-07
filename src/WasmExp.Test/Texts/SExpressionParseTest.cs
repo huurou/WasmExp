@@ -1,4 +1,5 @@
-﻿using WasmExp.Text;
+﻿using System.Collections.Generic;
+using WasmExp.Text;
 
 namespace WasmExp.Test.Texts;
 
